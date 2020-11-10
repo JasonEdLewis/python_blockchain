@@ -1,0 +1,4 @@
+hello from python
+cool,whats going on?
+How are you liking Python?
+i'm pretty good Sir

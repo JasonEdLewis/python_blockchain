@@ -1,0 +1,24 @@
+def unlimited_arguments(*blobs, **kwargs):
+
+    print(kwargs)
+    for k, arguments in kwargs.items():
+        print(k, arguments)
+
+
+def print_some_formatted_text(*args):
+    print("Some text: {}, {}, {}, {}, {}".format(*args))
+
+
+# unlimited_arguments(1, "a", 3, "b", 19, name="Jason", age=45)
+# print_some_formatted_text(1, "a", 3, "b", 19)
+
+
+def func_takes_func(func, args):
+    for arg in args:
+        print(func(*args))
+
+
+# def x(a, b): return a + b
+
+
+func_takes_func(lambda a, b: a+b, [7, 9], [5, 7], [24, 65], 24, 56])
