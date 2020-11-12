@@ -25,6 +25,16 @@ def load_data():
         file_content = f.readlines()
         global blockchain, open_transactions
         blockchain = json.loads(file_content[0][:-1])
+        updated_blockcahin = list()
+        for block in blockchain:
+            updated_block = {'previous_hash': block['previous_hash'],
+                             'index': block['index'],
+                             'proof': block['proof'],
+                             'transactions': [OrderedDict(
+                                 [('sender', tx['sender']), ('recipient', tx['recipient']), ('amount', tx['amount'])])for tx in block['transactions']]
+                             }
+            updated_blockcahin.append(updated_block)
+        blockchain = updated_blockcahin
         open_transactions = json.loads(file_content[1])
 
 
@@ -108,6 +118,9 @@ def get_balance(participant):
         lambda tx_sum, tx_amt: tx_sum + sum(tx_amt) if tx_amt else tx_sum + 0, tx_recipient, 0)
 
     return round((amount_recieved - amount_sent), 2)
+
+
+print(f"{owner}'s Balance: {get_balance(owner)}")
 
 
 def verify_transaction(trans):
@@ -236,7 +249,6 @@ while waiting_for_input:
         if mine_block():
             open_transactions = []
             save_data()
-        # print(f"Open transaction post mining: {open_transactions}")
     elif user_choice == 't':
         print(open_transactions)
     elif user_choice == '4':
@@ -255,6 +267,6 @@ while waiting_for_input:
         print_blockchain_elements()
         print("Invalid Blockchain!")
         break
-    print(f"{owner}'s Balance: {get_balance(owner)}")
+
 
 print("Done!")
