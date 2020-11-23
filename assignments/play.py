@@ -1,6 +1,15 @@
 import functools
 import random as ran
 import hashlib as hl
+from collections import OrderedDict
+
+
+the_crew = OrderedDict([('sender', 'MINER'), ('recipient', 'Jason'), (
+    'amount', 10), ('sender', 'Jason'), ('recipient', 'jube'), ('amount', 4.2)])
+
+# new_dict = {thing[key], thing[val] for thing in the_crew}
+
+# print(new_dict)
 
 
 def valid_proof(transaction, last_hash, proof):
@@ -9,8 +18,8 @@ def valid_proof(transaction, last_hash, proof):
     print(guess_hash.hexdigest())
 
 
-valid_proof({'sender': 'MINER', 'recipient': 'Jason', 'amount': 10},
-            'c70e5e087c4af6b0c16ede032d443dde180c46205ac242fb10a74e12ac1c180e', 9)
+# valid_proof({'sender': 'MINER', 'recipient': 'Jason', 'amount': 10},
+#             'c70e5e087c4af6b0c16ede032d443dde180c46205ac242fb10a74e12ac1c180e', 9)
 # the_num = ran.randint(0, 77)
 
 
