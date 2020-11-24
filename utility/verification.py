@@ -1,5 +1,7 @@
+"""Provides helper methods for Validation and Verification of Blockchain Transactions """
+
 import hashlib as hl
-from hash_util import hash_256, hash_block
+from utility.hash_util import hash_256, hash_block
 from transaction import Transaction
 
 

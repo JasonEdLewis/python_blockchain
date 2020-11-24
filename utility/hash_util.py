@@ -1,5 +1,6 @@
 import json
 import hashlib as hl
+# __all__ = ['hash_256', 'hash_block']
 
 
 def hash_256(string):

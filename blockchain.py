@@ -3,10 +3,13 @@ from functools import reduce
 import random
 import json
 import pickle
-from hash_util import hash_block
+# from utility import hash_util, printable, verification
+from utility.hash_util import hash_block
 from block import Block
 from transaction import Transaction
-from verification import Validation
+from utility.verification import Validation
+
+# print(__name__)
 
 
 class Blockchain:
@@ -16,6 +19,7 @@ class Blockchain:
         self.__open_transactions = list()
         self.load_data()
         self.hosting_node = hosting_node_id
+        # print(f"Hosting Node from Blockchain: {self.hosting_node}")
 
     @property
     def chain(self):
@@ -131,6 +135,8 @@ class Blockchain:
         :recipient: The recipient of the coins [String]
         :amount: The amount of coins sent in the transaction (default = 1.0)
         """
+        if self.hosting_node == None:
+            return False
         transaction = Transaction(sender, recipient, amount)
 
         if Validation.verify_transaction(transaction, self.get_balance):
@@ -152,6 +158,8 @@ class Blockchain:
 
     def mine_block(self):
         """ Creates a new block in the blockchain adding current open transactions to it."""
+        if self.hosting_node == None:
+            return False
         last_block = self.__chain[-1]
         hashed_block = hash_block(last_block)
         proof = self.proof_of_work()
