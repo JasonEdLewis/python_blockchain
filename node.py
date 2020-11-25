@@ -6,8 +6,8 @@ from uuid import uuid4
 
 class Node:
     def __init__(self):
-        # self.id = str(uuid4())
         self.wallet = Wallet()
+        self.wallet.create_keys()
         self.blockchain = Blockchain(self.wallet.public_key)
 
     def get_user_choice(self):
@@ -51,6 +51,7 @@ class Node:
             print("4: Verify transactions")
             print("5: Generate Wallet")
             print("6: Load Wallet")
+            print("7: Save wallet")
             print("t: show open transactions")
 
             user_choice = self.get_user_choice()
@@ -85,8 +86,11 @@ class Node:
                     print("There are invalid transactions")
             elif user_choice == '5':
                 self.wallet.create_keys()
+                self.blockchain = Blockchain(self.wallet.public_key)
             elif user_choice == '6':
-                Wallet.generate_keys()
+                self.wallet.load_keys()
+            elif user_choice == '7':
+                self.wallet.save_keys()
             else:
                 print("Please enter a valid value")
             if not Validation.verify_chain(self.blockchain.chain):
