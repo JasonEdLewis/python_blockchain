@@ -58,11 +58,13 @@ class Node:
             if user_choice == '1':
                 tx_data = self.get_transaction_value()
                 recipient, amount = tx_data
+                signature = self.wallet.sign_transaction(
+                    self.wallet.public_key, recipient, amount)
                 if not recipient:
                     print(f""" *WARNING*
         You dont have enough to sent {amount} coins """)
                     continue
-                if self.blockchain.add_value(recipient, self.wallet.public_key, amount=amount):
+                if self.blockchain.add_value(recipient, self.wallet.public_key, signature, amount=amount):
                     print(f"""{'*'*20}
                             Transaction added succesfully
                             {'*'*20}""")
@@ -78,7 +80,7 @@ class Node:
                 if not self.blockchain.mine_block():
                     print("Mining Failed. Do you have a wallet?")
             elif user_choice == 't':
-                print(self.blockchain.open_transactions)
+                print(self.blockchain.chain.open_transactions)
             elif user_choice == '4':
                 if Validation.verify_transactions(self.blockchain.get_open_transactions(), self.blockchain.get_balance):
                     print("All transactions valid")
@@ -89,6 +91,7 @@ class Node:
                 self.blockchain = Blockchain(self.wallet.public_key)
             elif user_choice == '6':
                 self.wallet.load_keys()
+                self.blockchain = Blockchain(self.wallet.public_key)
             elif user_choice == '7':
                 self.wallet.save_keys()
             else:

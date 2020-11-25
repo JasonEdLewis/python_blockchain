@@ -8,6 +8,7 @@ from utility.hash_util import hash_block
 from block import Block
 from transaction import Transaction
 from utility.verification import Validation
+from wallet import Wallet
 
 # print(__name__)
 
@@ -47,7 +48,7 @@ class Blockchain:
             blockchain = json.loads(file_content[0][:-1])
             updated_blockchain = list()
             for block in blockchain:
-                converted_tx = [Transaction(tx['sender'], tx['recipient'], tx['amount'])
+                converted_tx = [Transaction(tx['sender'], tx['recipient'], tx['signature'], tx['amount'])
                                 for tx in block['transactions']]
                 updated_block = Block(block['index'], block['previous_hash'],
                                       converted_tx, block['proof'], block['timestamp'])
@@ -62,7 +63,7 @@ class Blockchain:
             updated_transactions = list()
             for tx in open_transactions:
                 updated_tx = Transaction(
-                    tx['sender'], tx['recipient'], tx['amount'])
+                    tx['sender'], tx['recipient'], tx['signature'], tx['amount'])
                 updated_transactions.append(updated_tx)
             self.__open_transactions = updated_transactions
             # return load_participants
@@ -126,7 +127,7 @@ class Blockchain:
 
         return round((amount_recieved - amount_sent), 2)
 
-    def add_value(self, recipient, sender, amount=1.0):
+    def add_value(self, recipient, sender, signature, amount=1.0):
         """
         Appends a new value as well as the last block
         to the blockchain
@@ -137,8 +138,7 @@ class Blockchain:
         """
         if self.hosting_node == None:
             return False
-        transaction = Transaction(sender, recipient, amount)
-
+        transaction = Transaction(sender, recipient, signature, amount)
         if Validation.verify_transaction(transaction, self.get_balance):
             self.__open_transactions.append(transaction)
             # participants.add(sender)
@@ -164,7 +164,10 @@ class Blockchain:
         hashed_block = hash_block(last_block)
         proof = self.proof_of_work()
         copied_transactions = self.__open_transactions[:]
-        reward = Transaction('MINING', self.hosting_node, 10)
+        for tx in copied_transactions:
+            if not Wallet.verify_trans_sig(tx):
+                return False
+        reward = Transaction('MINING', self.hosting_node, '', 10)
         copied_transactions.append(reward)
         block = Block(len(self.__chain), hashed_block,
                       copied_transactions, proof)
