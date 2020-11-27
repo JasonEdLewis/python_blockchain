@@ -22,8 +22,9 @@ class Wallet:
                     f.write(self.public_key)
                     f.write('\n')
                     f.write(self.private_key)
+                    return True
             except(IOError, IndexError):
-                print("Saving wallet failed...")
+                return False
 
     def load_keys(self):
         try:
@@ -33,8 +34,9 @@ class Wallet:
                 private_key = keys[1]
                 self.public_key = public_key
                 self.private_key = private_key
+            return True
         except (IOError, IndexError):
-            print("Loading wallet failed....")
+            return False
 
     @classmethod
     def generate_keys(cls):

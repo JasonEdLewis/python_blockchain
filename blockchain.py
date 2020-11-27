@@ -10,8 +10,6 @@ from transaction import Transaction
 from utility.verification import Validation
 from wallet import Wallet
 
-# print(__name__)
-
 
 class Blockchain:
     def __init__(self, hosting_node_id):
@@ -29,7 +27,7 @@ class Blockchain:
     @chain.setter
     def chain(self, val):
         self.__chain = val
-        # pass instead of setting self.__chain would make chain immutable
+        # 'pass' instead of setting self.__chain would make chain immutable
 
     def get_open_transactions(self):
         return self.__open_transactions[:]
@@ -69,8 +67,6 @@ class Blockchain:
             # return load_participants
         except (IOError, IndexError):
             pass
-        finally:
-            print("Clean up!!")
 
     def save_data(self):
         try:
@@ -104,6 +100,8 @@ class Blockchain:
 
     def get_balance(self):
         participant = self.hosting_node
+        if not participant:
+            return None
         open_tx_sender = [tx.amount
                           for tx in self.__open_transactions if tx.sender == participant]
         tx_sender = [[tx.amount for tx in block.transactions
@@ -159,14 +157,14 @@ class Blockchain:
     def mine_block(self):
         """ Creates a new block in the blockchain adding current open transactions to it."""
         if self.hosting_node == None:
-            return False
+            return None
         last_block = self.__chain[-1]
         hashed_block = hash_block(last_block)
         proof = self.proof_of_work()
         copied_transactions = self.__open_transactions[:]
         for tx in copied_transactions:
             if not Wallet.verify_trans_sig(tx):
-                return False
+                return None
         reward = Transaction('MINING', self.hosting_node, '', 10)
         copied_transactions.append(reward)
         block = Block(len(self.__chain), hashed_block,
@@ -176,7 +174,7 @@ class Blockchain:
         self.save_data()
         print(
             f"Blockchain: {[block.__dict__ for block in [Block(ele.index,ele.previous_hash,[tx.__dict__ for tx in ele.transactions],ele.proof,ele.timestamp) for ele in self.__chain]]}")
-        return True
+        return block
 
     def add_transaction(self):
         tx_amount = self.get_transaction_value()
