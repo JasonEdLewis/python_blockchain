@@ -52,6 +52,9 @@
           transform: rotate(360deg);
         }
       }
+      .contain-chars {
+        word-wrap: break-word;
+      }
     </style>
   </head>
 
@@ -66,7 +69,11 @@
         <div v-if="error" class="alert alert-danger" role="alert">
           {{ error }}
         </div>
-        <div v-if="success" class="alert alert-success" role="alert">
+        <div
+          v-if="success"
+          class="alert alert-success contain-chars"
+          role="alert"
+        >
           {{ success }}
         </div>
         <div class="row">
@@ -88,7 +95,7 @@
             </div>
           </div>
           <div class="col text-right">
-            <h2>Funds: {{ funds.toFixed(2) }}</h2>
+            <h2>Balance: {{ balance.toFixed(2) }}</h2>
           </div>
         </div>
         <hr />
@@ -272,7 +279,7 @@
           showElement: null,
           error: null,
           success: null,
-          funds: 0,
+          balance: 0,
           outgoingTx: {
             recipient: "",
             amount: 0,
@@ -305,7 +312,7 @@
                   public_key: response.data.public_key,
                   private_key: response.data.private_key,
                 };
-                vm.funds = response.data.funds;
+                vm.balance = response.data.balance;
                 vm.walletLoading = false;
               })
               .catch(function (error) {
@@ -332,7 +339,7 @@
                   public_key: response.data.public_key,
                   private_key: response.data.private_key,
                 };
-                vm.funds = response.data.funds;
+                vm.balance = response.data.balance;
                 vm.walletLoading = false;
               })
               .catch(function (error) {
@@ -355,7 +362,7 @@
                 vm.error = null;
                 vm.success = response.data.message;
                 console.log(response.data);
-                vm.funds = response.data.funds;
+                vm.balance = response.data.balance;
                 vm.txLoading = false;
               })
               .catch(function (error) {
@@ -372,7 +379,7 @@
                 vm.error = null;
                 vm.success = response.data.message;
                 console.log(response.data);
-                vm.funds = response.data.funds;
+                vm.balance = response.data.balance;
               })
               .catch(function (error) {
                 vm.success = null;
@@ -400,7 +407,8 @@
               axios
                 .get("/transactions")
                 .then(function (response) {
-                  vm.openTransactions = response.data;
+                  console.log(response.data.transactions);
+                  vm.openTransactions = response.data.transactions;
                   vm.dataLoading = false;
                 })
                 .catch(function (error) {
