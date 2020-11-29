@@ -1,8 +1,9 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from wallet import Wallet
 from flask_cors import CORS
 from blockchain import Blockchain
 from utility.common import std_response
+import json
 
 
 app = Flask(__name__)
@@ -11,19 +12,24 @@ blockhain = Blockchain(wallet.public_key)
 CORS(app)
 
 
+@app.route('/', methods=['GET'])
+def get_ui():
+    return send_from_directory('ui', 'node.html')
+
+
 @app.route('/wallet', methods=['POST'])
 def create_keys():
     wallet.create_keys()
     keys_saved = wallet.save_keys()
-    global blockhain
-    blockhain = Blockchain(wallet.public_key)
     if keys_saved:
+        global blockhain
+        blockhain = Blockchain(wallet.public_key)
         response = {
             'public_key': wallet.public_key,
             'private_key': wallet.private_key,
             'balance': blockhain.get_balance()
         }
-        return jsonify(response), 200
+        return jsonify(response), 201
     return std_response('Saving keys failed', keys_saved), 500
 
 
@@ -48,11 +54,6 @@ def get_balance():
     if balance != None:
         return jsonify({'message': 'Funds retrieved successfully.', 'balance': balance}), 200
     return std_response('failed to load balance', False), 500
-
-
-@app.route('/', methods=['GET'])
-def get_ui():
-    return 'this works!'
 
 
 @app.route('/transaction', methods=['POST'])
