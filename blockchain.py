@@ -15,6 +15,7 @@ class Blockchain:
     def __init__(self, hosting_node_id):
         GENESIS_BLOCK = Block(0, "_", [], 123, 0)
         self.chain = [GENESIS_BLOCK]
+        self.__peer_nodes = set()
         self.__open_transactions = list()
         self.load_data()
         self.hosting_node = hosting_node_id
@@ -57,13 +58,15 @@ class Blockchain:
 
                 updated_blockchain.append(updated_block)
             self.chain = updated_blockchain
-            open_transactions = json.loads(file_content[1])
+            open_transactions = json.loads(file_content[1][:-1])
             updated_transactions = list()
             for tx in open_transactions:
                 updated_tx = Transaction(
                     tx['sender'], tx['recipient'], tx['signature'], tx['amount'])
                 updated_transactions.append(updated_tx)
             self.__open_transactions = updated_transactions
+            peer_nodes = json.loads(file_content[2])
+            self.__peer_nodes = set(peer_nodes)
             # return load_participants
         except (IOError, IndexError):
             pass
@@ -79,6 +82,8 @@ class Blockchain:
                 savable_tx = [
                     trans.__dict__ for trans in self.__open_transactions]
                 f.write(json.dumps(savable_tx))
+                f.write('\n')
+                f.write(json.dumps(list(self.__peer_nodes)))
             # save_data = dict({
             #     'chain': blockchain,
             #     'ot': open_transactions
@@ -178,3 +183,27 @@ class Blockchain:
 
     def add_transaction(self):
         tx_amount = self.get_transaction_value()
+
+    def add_peer_node(self, node):
+        """Adds a new node to the set of nodes.
+
+        Args:
+            :node: The node URL which should be added.
+        """
+        self.__peer_nodes.add(node.lower())
+        self.save_data()
+
+    def remove_peer_node(self, node):
+        """
+            Adds a new node to the set of nodes.
+
+        Args:
+            :node: The node URL which should be added.
+        """
+        self.__peer_nodes.discard(node.lower())
+        self.save_data()
+
+    def get_peer_nodes(self):
+        """Returns a list of all connected peer nodes.
+        """
+        return list(self.__peer_nodes)

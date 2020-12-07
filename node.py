@@ -13,8 +13,13 @@ CORS(app)
 
 
 @app.route('/', methods=['GET'])
-def get_ui():
+def get_node_ui():
     return send_from_directory('ui', 'node.html')
+
+
+@app.route('/network', methods=['GET'])
+def get_network_ui():
+    return send_from_directory('ui', 'network.html')
 
 
 @app.route('/wallet', methods=['POST'])
@@ -129,6 +134,65 @@ def get_chain():
         dict_block['transactions'] = [
             tx.__dict__ for tx in dict_block['transactions']]
     return jsonify(dict_chain), 200
+
+
+@app.route('/nodes', methods=['GET'])
+def get_nodes():
+    nodes = blockhain.get_peer_nodes()
+    if nodes:
+        response = {
+            'message': 'Successfully retrieved nodes',
+            'all_nodes': nodes
+        }
+        return jsonify(response), 200
+    response = {
+        'message': 'No peer nodes connected at this time'
+    }
+    return jsonify(response), 201
+
+
+@app.route('/node', methods=['POST'])
+def add_node():
+    values = request.get_json()
+    current_nodes = blockhain.get_peer_nodes()
+    if values.get('node').lower() in current_nodes:
+        responce = {
+            'message': 'Node already exist',
+            'all_nodes': blockhain.get_peer_nodes()
+        }
+        return jsonify(responce), 200
+    if not values:
+        responce = {
+            'message': 'No data found.'
+        }
+        return jsonify(responce), 400
+    if not values.get('node'):
+        responce = {
+            'message': 'No node found.'
+        }
+        return jsonify(responce), 200
+    new_node = values.get('node').lower()
+    blockhain.add_peer_node(new_node)
+    responce = {
+        'message': 'Node added successfully',
+        'all_nodes': blockhain.get_peer_nodes()
+    }
+    return jsonify(responce), 201
+
+
+@app.route('/node/<node_url>', methods=['DELETE'])
+def remove_node(node_url):
+    if not node_url.strip() or node_url == None:
+        response = {
+            'message': 'No node provided'
+        }
+        return jsonify(response), 400
+    blockhain.remove_peer_node(node_url.lower())
+    response = {
+        'message': f'{node_url} has been successfully deleted',
+        'all_nodes': blockhain.get_peer_nodes()
+    }
+    return jsonify(response), 201
 
 
 if __name__ == '__main__':
